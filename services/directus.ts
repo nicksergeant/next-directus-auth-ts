@@ -11,11 +11,12 @@ export const directus = (token: string = "") => {
       .with(staticToken(token))
       .with(rest())
   }
+  console.log('[USING COOKIE] directus()')
   return createDirectus(process.env.NEXT_PUBLIC_DIRECTUS_API ?? "")
     .with(
       authentication("cookie", { credentials: "include", autoRefresh: true })
     )
-    .with(rest())
+    .with(rest({ credentials: "include" }))
 }
 
 export const login = async ({

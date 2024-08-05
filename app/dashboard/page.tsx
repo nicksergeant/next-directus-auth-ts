@@ -1,11 +1,9 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import type { Metadata } from "next"
+import { auth } from "@/auth"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { directus } from "@/services/directus"
+import { readItems } from "@directus/sdk"
+import { refreshPlaces } from "./actions"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -13,8 +11,24 @@ export const metadata: Metadata = {
 }
 
 export default async function Dashboard() {
+  const session = await auth()
+  console.log("[Dashboard Session]", session)
+
+  const token = session?.access_token
+  const api = directus(token)
+
+  const places = await api.request(
+    readItems("places", {
+      sort: "name",
+    })
+  )
+
   return (
     <div className="space-y-4">
+      <form action={refreshPlaces}>
+        <button type="submit">Refresh</button>
+      </form>
+      <div className="bg-red-100">{JSON.stringify(places)}</div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
